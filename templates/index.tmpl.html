@@ -2,28 +2,39 @@
 <script>
   var lifeBoardLength = {{.length}};
   var lifeBoardWidth = {{.width}};
+  var lifeBoardDensity = {{.density}};
   var playing = false;
-  function init() {
-    document.getElementById("PauseButton").onclick = function() {lifeBoard.Pause();};
-    document.getElementById("PlayButton").onclick = function() {lifeBoard.Play();};
-    document.getElementById("StepButton").onclick = function() {lifeBoard.Step();};
-    var canvas = document.getElementById("BoardCanvas");
+  var canvas = null;
+  function resizeCanvas() {
     canvas.style.width = '100%';
     canvas.style.height = '100%';
     canvas.width = canvas.offsetWidth;
     canvas.height = canvas.offsetHeight;
-    lifeBoard.DrawGrid();
+    lifeBoard.Draw();
+  }
+  function init() {
+    document.getElementById("PauseButton").onclick = function() {lifeBoard.Pause();};
+    document.getElementById("PlayButton").onclick = function() {lifeBoard.Play();};
+    document.getElementById("StepButton").onclick = function() {lifeBoard.Step();};
+    document.getElementById("GoButton").onclick = function() {
+      var fullUrl = window.location;
+      var baseUrl = fullUrl.protocol + "//" + fullUrl.host + "/" + fullUrl.pathname.split('/')[1];
+      window.location = baseUrl + "?length=" + document.getElementById("LengthInput").value + "&width=" + document.getElementById("WidthInput").value + "&density=" + document.getElementById("DensityInput").value;
+    }
+    canvas = document.getElementById("BoardCanvas");
+    resizeCanvas();
+    lifeBoard.Play();
   }
   window.onload=init;
 </script>
   {{template "header.tmpl.html"}}
 <body>
   <div id="BoardContainer" style="position:absolute; height:90%; width:100%;">
-    <canvas id="BoardCanvas" style="width:100%;height:100%;"></canvas>
+    <canvas id="BoardCanvas" style="width:100%;height:100%;" onresize="resizeCanvas();"></canvas>
   </div>
   <div style="display:flex;justify-content:center;align-items:flex-end;width:100%;height:98%;">
     <div id="Controls">
-      <table>
+      <table style="border-collapse:separate;border-spacing:5px;">
         <caption style="text-align:center;">
           Controls
         </caption>
@@ -36,6 +47,24 @@
           </td>
           <td>
             <input id="StepButton" type="button" value="Step" />
+          </td>
+          <td />
+          <td />
+          <td />
+          <td>
+            <label>Length:</label>
+            <input id="LengthInput" type="number" style="width:50px;" />
+          </td>
+          <td>
+            <label>Width:</label>
+            <input id="WidthInput" type="number" style="width:50px;" />
+          </td>
+          <td>
+            <label>Density:</label>
+            <input id="DensityInput" type="number" style="width:50px;" />
+          </td>
+          <td>
+            <input id="GoButton" type="button" value="Go" />
           </td>
         </tr>
       </table>

@@ -24,19 +24,25 @@ func main() {
 	router.Static("/js", "js")
 
 	router.GET("/", func(c *gin.Context) {
-		lengthStr := c.DefaultQuery("length", "1000")
-		widthStr := c.DefaultQuery("width", "1000")
+		lengthStr := c.DefaultQuery("length", "300")
+		widthStr := c.DefaultQuery("width", "300")
+		densityStr := c.DefaultQuery("density", "0.15")
 		length, err := strconv.Atoi(lengthStr)
 		if err != nil {
-			length = 1000
+			length = 300
 		}
 		width, err := strconv.Atoi(widthStr)
 		if err != nil {
-			width = 1000
+			width = 300
+		}
+		density, err := strconv.ParseFloat(densityStr, 64)
+		if err != nil {
+			density = 0.15
 		}
 		c.HTML(http.StatusOK, "index.tmpl.html", gin.H{
-			"length": length,
-			"width":  width,
+			"length":  length,
+			"width":   width,
+			"density": density,
 		})
 	})
 

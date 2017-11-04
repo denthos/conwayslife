@@ -2325,161 +2325,6 @@ $packages["runtime"] = (function() {
 	$pkg.$init = $init;
 	return $pkg;
 })();
-$packages["conwayslife/go/life"] = (function() {
-	var $pkg = {}, $init, runtime, Board, sliceType, sliceType$1, ptrType, CreateEmptyBoard, CreateBoard;
-	runtime = $packages["runtime"];
-	Board = $pkg.Board = $newType(0, $kindStruct, "life.Board", true, "conwayslife/go/life", true, function(length_, width_, Tiles_, next_) {
-		this.$val = this;
-		if (arguments.length === 0) {
-			this.length = 0;
-			this.width = 0;
-			this.Tiles = sliceType$1.nil;
-			this.next = sliceType$1.nil;
-			return;
-		}
-		this.length = length_;
-		this.width = width_;
-		this.Tiles = Tiles_;
-		this.next = next_;
-	});
-	sliceType = $sliceType($Bool);
-	sliceType$1 = $sliceType(sliceType);
-	ptrType = $ptrType(Board);
-	Board.ptr.prototype.GetSize = function() {
-		var board;
-		board = this;
-		return $imul(board.length, board.width);
-	};
-	Board.prototype.GetSize = function() { return this.$val.GetSize(); };
-	Board.ptr.prototype.GetLength = function() {
-		var board;
-		board = this;
-		return board.length;
-	};
-	Board.prototype.GetLength = function() { return this.$val.GetLength(); };
-	Board.ptr.prototype.GetWidth = function() {
-		var board;
-		board = this;
-		return board.width;
-	};
-	Board.prototype.GetWidth = function() { return this.$val.GetWidth(); };
-	Board.ptr.prototype.Get = function(x, y) {
-		var _r, _r$1, board, x, x$1, x$2, y;
-		board = this;
-		x = x + (board.length) >> 0;
-		x = (_r = x % (board.length), _r === _r ? _r : $throwRuntimeError("integer divide by zero"));
-		y = y + (board.width) >> 0;
-		y = (_r$1 = y % (board.width), _r$1 === _r$1 ? _r$1 : $throwRuntimeError("integer divide by zero"));
-		return (x$1 = (x$2 = board.Tiles, ((x < 0 || x >= x$2.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$2.$array[x$2.$offset + x])), ((y < 0 || y >= x$1.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$1.$array[x$1.$offset + y]));
-	};
-	Board.prototype.Get = function(x, y) { return this.$val.Get(x, y); };
-	Board.ptr.prototype.stepTile = function(x, y) {
-		var alive, board, i, j, x, x$1, x$2, y;
-		board = this;
-		alive = 0;
-		i = -1;
-		while (true) {
-			if (!(i <= 1)) { break; }
-			j = -1;
-			while (true) {
-				if (!(j <= 1)) { break; }
-				if ((!((j === 0)) || !((i === 0))) && board.Get(x + i >> 0, y + j >> 0)) {
-					alive = alive + (1) >> 0;
-				}
-				j = j + (1) >> 0;
-			}
-			i = i + (1) >> 0;
-		}
-		return (alive === 3) || ((alive === 2) && (x$1 = (x$2 = board.Tiles, ((x < 0 || x >= x$2.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$2.$array[x$2.$offset + x])), ((y < 0 || y >= x$1.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$1.$array[x$1.$offset + y])));
-	};
-	Board.prototype.stepTile = function(x, y) { return this.$val.stepTile(x, y); };
-	Board.ptr.prototype.Step = function() {
-		var _q, _tmp, _tmp$1, board, chunkSize, i, numCPU;
-		board = this;
-		numCPU = runtime.NumCPU();
-		chunkSize = (_q = (((board.length + numCPU >> 0) - 1 >> 0)) / numCPU, (_q === _q && _q !== 1/0 && _q !== -1/0) ? _q >> 0 : $throwRuntimeError("integer divide by zero"));
-		i = 0;
-		while (true) {
-			if (!(i < board.length)) { break; }
-			$go((function(x) {
-				var j, k, x, x$1, x$2;
-				j = x;
-				while (true) {
-					if (!(j < (x + chunkSize >> 0))) { break; }
-					k = 0;
-					while (true) {
-						if (!(k < board.width)) { break; }
-						(x$1 = (x$2 = board.next, ((j < 0 || j >= x$2.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$2.$array[x$2.$offset + j])), ((k < 0 || k >= x$1.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$1.$array[x$1.$offset + k] = board.stepTile(j, k)));
-						k = k + (1) >> 0;
-					}
-					j = j + (1) >> 0;
-				}
-			}), [i]);
-			i = i + (chunkSize) >> 0;
-		}
-		_tmp = board.next;
-		_tmp$1 = board.Tiles;
-		board.Tiles = _tmp;
-		board.next = _tmp$1;
-	};
-	Board.prototype.Step = function() { return this.$val.Step(); };
-	CreateEmptyBoard = function(length, width) {
-		var _i, _ref, board, i, length, width, x, x$1;
-		board = new Board.ptr(length, width, $makeSlice(sliceType$1, length), $makeSlice(sliceType$1, length));
-		_ref = board.Tiles;
-		_i = 0;
-		while (true) {
-			if (!(_i < _ref.$length)) { break; }
-			i = _i;
-			(x = board.Tiles, ((i < 0 || i >= x.$length) ? ($throwRuntimeError("index out of range"), undefined) : x.$array[x.$offset + i] = $makeSlice(sliceType, width)));
-			(x$1 = board.next, ((i < 0 || i >= x$1.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$1.$array[x$1.$offset + i] = $makeSlice(sliceType, width)));
-			_i++;
-		}
-		return board;
-	};
-	$pkg.CreateEmptyBoard = CreateEmptyBoard;
-	CreateBoard = function(length, width, filler) {
-		var _q, board, chunkSize, filler, i, length, numCPU, width;
-		board = CreateEmptyBoard(length, width);
-		numCPU = runtime.NumCPU();
-		chunkSize = (_q = (((board.length + numCPU >> 0) - 1 >> 0)) / numCPU, (_q === _q && _q !== 1/0 && _q !== -1/0) ? _q >> 0 : $throwRuntimeError("integer divide by zero"));
-		i = 0;
-		while (true) {
-			if (!(i < board.length)) { break; }
-			$go((function $b(x) {
-				var _r, j, k, x, x$1, x$2, $s, $r;
-				/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; _r = $f._r; j = $f.j; k = $f.k; x = $f.x; x$1 = $f.x$1; x$2 = $f.x$2; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
-				j = x;
-				/* while (true) { */ case 1:
-					/* if (!(j < (x + chunkSize >> 0))) { break; } */ if(!(j < (x + chunkSize >> 0))) { $s = 2; continue; }
-					k = 0;
-					/* while (true) { */ case 3:
-						/* if (!(k < board.width)) { break; } */ if(!(k < board.width)) { $s = 4; continue; }
-						_r = filler(i, j); /* */ $s = 5; case 5: if($c) { $c = false; _r = _r.$blk(); } if (_r && _r.$blk !== undefined) { break s; }
-						(x$1 = (x$2 = board.Tiles, ((j < 0 || j >= x$2.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$2.$array[x$2.$offset + j])), ((k < 0 || k >= x$1.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$1.$array[x$1.$offset + k] = _r));
-						k = k + (1) >> 0;
-					/* } */ $s = 3; continue; case 4:
-					j = j + (1) >> 0;
-				/* } */ $s = 1; continue; case 2:
-				$s = -1; return;
-				/* */ } return; } if ($f === undefined) { $f = { $blk: $b }; } $f._r = _r; $f.j = j; $f.k = k; $f.x = x; $f.x$1 = x$1; $f.x$2 = x$2; $f.$s = $s; $f.$r = $r; return $f;
-			}), [i]);
-			i = i + (chunkSize) >> 0;
-		}
-		return board;
-	};
-	$pkg.CreateBoard = CreateBoard;
-	ptrType.methods = [{prop: "GetSize", name: "GetSize", pkg: "", typ: $funcType([], [$Int], false)}, {prop: "GetLength", name: "GetLength", pkg: "", typ: $funcType([], [$Int], false)}, {prop: "GetWidth", name: "GetWidth", pkg: "", typ: $funcType([], [$Int], false)}, {prop: "Get", name: "Get", pkg: "", typ: $funcType([$Int, $Int], [$Bool], false)}, {prop: "stepTile", name: "stepTile", pkg: "conwayslife/go/life", typ: $funcType([$Int, $Int], [$Bool], false)}, {prop: "Step", name: "Step", pkg: "", typ: $funcType([], [], false)}];
-	Board.init("conwayslife/go/life", [{prop: "length", name: "length", anonymous: false, exported: false, typ: $Int, tag: ""}, {prop: "width", name: "width", anonymous: false, exported: false, typ: $Int, tag: ""}, {prop: "Tiles", name: "Tiles", anonymous: false, exported: true, typ: sliceType$1, tag: ""}, {prop: "next", name: "next", anonymous: false, exported: false, typ: sliceType$1, tag: ""}]);
-	$init = function() {
-		$pkg.$init = function() {};
-		/* */ var $f, $c = false, $s = 0, $r; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
-		$r = runtime.$init(); /* */ $s = 1; case 1: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
-		/* */ } return; } if ($f === undefined) { $f = { $blk: $init }; } $f.$s = $s; $f.$r = $r; return $f;
-	};
-	$pkg.$init = $init;
-	return $pkg;
-})();
 $packages["github.com/gopherjs/gopherjs/nosync"] = (function() {
 	var $pkg = {}, $init, Mutex, ptrType$1;
 	Mutex = $pkg.Mutex = $newType(0, $kindStruct, "nosync.Mutex", true, "github.com/gopherjs/gopherjs/nosync", true, function(locked_) {
@@ -3109,43 +2954,62 @@ $packages["math/rand"] = (function() {
 	return $pkg;
 })();
 $packages["main"] = (function() {
-	var $pkg = {}, $init, life, js, rand, ptrType, funcType, mapType, board, playing, main, Play, Pause, Draw, DrawGrid;
-	life = $packages["conwayslife/go/life"];
+	var $pkg = {}, $init, js, rand, runtime, Board, ptrType, funcType, mapType, sliceType, sliceType$1, board, playing, main, Play, PlayLoop, Pause, Draw, DrawGrid, ClearTile, FillTile, CreateEmptyBoard, CreateBoard;
 	js = $packages["github.com/gopherjs/gopherjs/js"];
 	rand = $packages["math/rand"];
-	ptrType = $ptrType(life.Board);
+	runtime = $packages["runtime"];
+	Board = $pkg.Board = $newType(0, $kindStruct, "main.Board", true, "main", true, function(length_, width_, Tiles_, next_) {
+		this.$val = this;
+		if (arguments.length === 0) {
+			this.length = 0;
+			this.width = 0;
+			this.Tiles = sliceType$1.nil;
+			this.next = sliceType$1.nil;
+			return;
+		}
+		this.length = length_;
+		this.width = width_;
+		this.Tiles = Tiles_;
+		this.next = next_;
+	});
+	ptrType = $ptrType(Board);
 	funcType = $funcType([], [], false);
 	mapType = $mapType($String, $emptyInterface);
+	sliceType = $sliceType($Bool);
+	sliceType$1 = $sliceType(sliceType);
 	main = function() {
-		var length, width;
+		var density, length, width;
 		length = $global.lifeBoardLength;
 		width = $global.lifeBoardWidth;
-		board = life.CreateBoard($parseInt(length) >> 0, $parseInt(width) >> 0, (function $b(x, y) {
+		density = $global.lifeBoardDensity;
+		board = CreateBoard($parseInt(length) >> 0, $parseInt(width) >> 0, (function $b(x, y) {
 			var _r, x, y, $s, $r;
 			/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; _r = $f._r; x = $f.x; y = $f.y; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
 			_r = rand.Float64(); /* */ $s = 1; case 1: if($c) { $c = false; _r = _r.$blk(); } if (_r && _r.$blk !== undefined) { break s; }
-			$s = -1; return _r <= 0.33;
+			$s = -1; return _r <= $parseFloat(density);
 			/* */ } return; } if ($f === undefined) { $f = { $blk: $b }; } $f._r = _r; $f.x = x; $f.y = y; $f.$s = $s; $f.$r = $r; return $f;
 		}));
-		$global.lifeBoard = $externalize($makeMap($String.keyFor, [{ k: "Tiles", v: board.Tiles }, { k: "Step", v: new funcType($methodVal(board, "Step")) }, { k: "Play", v: new funcType(Play) }, { k: "Pause", v: new funcType(Pause) }, { k: "Draw", v: new funcType(Draw) }, { k: "DrawGrid", v: new funcType(DrawGrid) }]), mapType);
-		DrawGrid();
-		Play();
+		$global.lifeBoard = $externalize($makeMap($String.keyFor, [{ k: "Tiles", v: board.Tiles }, { k: "Step", v: new funcType($methodVal(board, "Step")) }, { k: "Play", v: new funcType(Play) }, { k: "Pause", v: new funcType(Pause) }, { k: "Draw", v: new funcType(Draw) }, { k: "DrawGrid", v: new funcType(DrawGrid) }, { k: "PlayLoop", v: new funcType(PlayLoop) }]), mapType);
 	};
 	Play = function() {
 		playing = true;
-		if (playing) {
-			board.Step();
-			Draw();
-			$global.setTimeout($externalize(Play, funcType), 5);
-		}
+		PlayLoop();
 	};
 	$pkg.Play = Play;
+	PlayLoop = function() {
+		if (playing) {
+			board.Step();
+			$global.setTimeout($externalize(PlayLoop, funcType), 5);
+		}
+	};
+	$pkg.PlayLoop = PlayLoop;
 	Pause = function() {
 		playing = false;
 	};
 	$pkg.Pause = Pause;
 	Draw = function() {
 		var canvas, context, i, j, x, x$1;
+		DrawGrid();
 		canvas = $global.document.getElementById($externalize("BoardCanvas", $String));
 		if (!(canvas === null)) {
 			context = canvas.getContext($externalize("2d", $String));
@@ -3157,7 +3021,9 @@ $packages["main"] = (function() {
 					while (true) {
 						if (!(j < board.GetWidth())) { break; }
 						if ((x = (x$1 = board.Tiles, ((i < 0 || i >= x$1.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$1.$array[x$1.$offset + i])), ((j < 0 || j >= x.$length) ? ($throwRuntimeError("index out of range"), undefined) : x.$array[x.$offset + j]))) {
+							FillTile(i, j);
 						} else {
+							ClearTile(i, j);
 						}
 						j = j + (1) >> 0;
 					}
@@ -3168,25 +3034,26 @@ $packages["main"] = (function() {
 	};
 	$pkg.Draw = Draw;
 	DrawGrid = function() {
-		var _q, _q$1, canvas, context, padding, x, x$1;
-		canvas = $global.document.getElementById($externalize("BoardCanvas", $String));
+		var _q, _q$1, canvas, context, x, x$1, xoffset, yoffset;
+		canvas = $global.canvas;
 		if (!(canvas === null)) {
 			context = canvas.getContext($externalize("2d", $String));
 			if (!(context === null)) {
-				padding = 0;
+				xoffset = (_q = ($parseInt(canvas.width) >> 0) / board.GetWidth(), (_q === _q && _q !== 1/0 && _q !== -1/0) ? _q >> 0 : $throwRuntimeError("integer divide by zero"));
+				yoffset = (_q$1 = ($parseInt(canvas.height) >> 0) / board.GetLength(), (_q$1 === _q$1 && _q$1 !== 1/0 && _q$1 !== -1/0) ? _q$1 >> 0 : $throwRuntimeError("integer divide by zero"));
 				x = 0;
 				while (true) {
-					if (!(x <= ($parseInt(canvas.width) >> 0))) { break; }
-					context.moveTo(0.5 + (x) + (padding), padding);
-					context.lineTo(0.5 + (x) + (padding), ($parseInt(canvas.height) >> 0) + padding >> 0);
-					x = x + ((_q = ($parseInt(canvas.width) >> 0) / board.GetLength(), (_q === _q && _q !== 1/0 && _q !== -1/0) ? _q >> 0 : $throwRuntimeError("integer divide by zero"))) >> 0;
+					if (!(x < board.GetWidth())) { break; }
+					context.moveTo(0.5 + (($imul(x, xoffset))), 0);
+					context.lineTo(0.5 + (($imul(x, xoffset))), $imul(board.GetLength(), yoffset));
+					x = x + (1) >> 0;
 				}
 				x$1 = 0;
 				while (true) {
-					if (!(x$1 <= ($parseInt(canvas.height) >> 0))) { break; }
-					context.moveTo(padding, 0.5 + (x$1) + (padding));
-					context.lineTo(($parseInt(canvas.width) >> 0) + padding >> 0, 0.5 + (x$1) + (padding));
-					x$1 = x$1 + ((_q$1 = ($parseInt(canvas.height) >> 0) / board.GetWidth(), (_q$1 === _q$1 && _q$1 !== 1/0 && _q$1 !== -1/0) ? _q$1 >> 0 : $throwRuntimeError("integer divide by zero"))) >> 0;
+					if (!(x$1 < board.GetLength())) { break; }
+					context.moveTo(0, 0.5 + (($imul(x$1, yoffset))));
+					context.lineTo($imul(board.GetWidth(), xoffset), 0.5 + (($imul(x$1, yoffset))));
+					x$1 = x$1 + (1) >> 0;
 				}
 				context.strokeStyle = $externalize("black", $String);
 				context.stroke();
@@ -3194,12 +3061,176 @@ $packages["main"] = (function() {
 		}
 	};
 	$pkg.DrawGrid = DrawGrid;
+	ClearTile = function(x, y) {
+		var _q, _q$1, canvas, context, x, xoffset, y, yoffset;
+		canvas = $global.canvas;
+		if (!(canvas === null)) {
+			context = canvas.getContext($externalize("2d", $String));
+			if (!(context === null)) {
+				xoffset = (_q = ($parseInt(canvas.width) >> 0) / board.GetWidth(), (_q === _q && _q !== 1/0 && _q !== -1/0) ? _q >> 0 : $throwRuntimeError("integer divide by zero"));
+				yoffset = (_q$1 = ($parseInt(canvas.height) >> 0) / board.GetLength(), (_q$1 === _q$1 && _q$1 !== 1/0 && _q$1 !== -1/0) ? _q$1 >> 0 : $throwRuntimeError("integer divide by zero"));
+				context.fillStyle = $externalize("#ffffff", $String);
+				context.fillRect((($imul(x, xoffset))) + 0.5, (($imul(y, yoffset))) + 0.5, xoffset, yoffset);
+			}
+		}
+	};
+	$pkg.ClearTile = ClearTile;
+	FillTile = function(x, y) {
+		var _q, _q$1, canvas, context, x, xoffset, y, yoffset;
+		canvas = $global.canvas;
+		if (!(canvas === null)) {
+			context = canvas.getContext($externalize("2d", $String));
+			if (!(context === null)) {
+				xoffset = (_q = ($parseInt(canvas.width) >> 0) / board.GetWidth(), (_q === _q && _q !== 1/0 && _q !== -1/0) ? _q >> 0 : $throwRuntimeError("integer divide by zero"));
+				yoffset = (_q$1 = ($parseInt(canvas.height) >> 0) / board.GetLength(), (_q$1 === _q$1 && _q$1 !== 1/0 && _q$1 !== -1/0) ? _q$1 >> 0 : $throwRuntimeError("integer divide by zero"));
+				context.fillStyle = $externalize("#000000", $String);
+				context.fillRect((($imul(x, xoffset))) + 0.5, (($imul(y, yoffset))) + 0.5, xoffset, yoffset);
+			}
+		}
+	};
+	$pkg.FillTile = FillTile;
+	Board.ptr.prototype.GetSize = function() {
+		var board$1;
+		board$1 = this;
+		return $imul(board$1.length, board$1.width);
+	};
+	Board.prototype.GetSize = function() { return this.$val.GetSize(); };
+	Board.ptr.prototype.GetLength = function() {
+		var board$1;
+		board$1 = this;
+		return board$1.length;
+	};
+	Board.prototype.GetLength = function() { return this.$val.GetLength(); };
+	Board.ptr.prototype.GetWidth = function() {
+		var board$1;
+		board$1 = this;
+		return board$1.width;
+	};
+	Board.prototype.GetWidth = function() { return this.$val.GetWidth(); };
+	Board.ptr.prototype.Get = function(x, y) {
+		var _r, _r$1, board$1, x, x$1, x$2, y;
+		board$1 = this;
+		x = x + (board$1.length) >> 0;
+		x = (_r = x % (board$1.length), _r === _r ? _r : $throwRuntimeError("integer divide by zero"));
+		y = y + (board$1.width) >> 0;
+		y = (_r$1 = y % (board$1.width), _r$1 === _r$1 ? _r$1 : $throwRuntimeError("integer divide by zero"));
+		return (x$1 = (x$2 = board$1.Tiles, ((x < 0 || x >= x$2.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$2.$array[x$2.$offset + x])), ((y < 0 || y >= x$1.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$1.$array[x$1.$offset + y]));
+	};
+	Board.prototype.Get = function(x, y) { return this.$val.Get(x, y); };
+	Board.ptr.prototype.stepTile = function(x, y) {
+		var alive, board$1, i, j, x, x$1, x$10, x$11, x$12, x$13, x$14, x$15, x$16, x$2, x$3, x$4, x$5, x$6, x$7, x$8, x$9, y;
+		board$1 = this;
+		alive = 0;
+		i = -1;
+		while (true) {
+			if (!(i <= 1)) { break; }
+			j = -1;
+			while (true) {
+				if (!(j <= 1)) { break; }
+				if ((!((j === 0)) || !((i === 0))) && board$1.Get(x + i >> 0, y + j >> 0)) {
+					alive = alive + (1) >> 0;
+				}
+				j = j + (1) >> 0;
+			}
+			i = i + (1) >> 0;
+		}
+		if ((alive === 3) || ((alive === 2) && (x$1 = (x$2 = board$1.Tiles, ((x < 0 || x >= x$2.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$2.$array[x$2.$offset + x])), ((y < 0 || y >= x$1.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$1.$array[x$1.$offset + y])))) {
+			(x$3 = (x$4 = board$1.next, ((x < 0 || x >= x$4.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$4.$array[x$4.$offset + x])), ((y < 0 || y >= x$3.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$3.$array[x$3.$offset + y] = true));
+		} else {
+			(x$5 = (x$6 = board$1.next, ((x < 0 || x >= x$6.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$6.$array[x$6.$offset + x])), ((y < 0 || y >= x$5.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$5.$array[x$5.$offset + y] = false));
+		}
+		if ((x$7 = (x$8 = board$1.Tiles, ((x < 0 || x >= x$8.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$8.$array[x$8.$offset + x])), ((y < 0 || y >= x$7.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$7.$array[x$7.$offset + y])) && !(x$9 = (x$10 = board$1.next, ((x < 0 || x >= x$10.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$10.$array[x$10.$offset + x])), ((y < 0 || y >= x$9.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$9.$array[x$9.$offset + y]))) {
+			ClearTile(x, y);
+		} else if (!(x$11 = (x$12 = board$1.Tiles, ((x < 0 || x >= x$12.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$12.$array[x$12.$offset + x])), ((y < 0 || y >= x$11.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$11.$array[x$11.$offset + y])) && (x$13 = (x$14 = board$1.next, ((x < 0 || x >= x$14.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$14.$array[x$14.$offset + x])), ((y < 0 || y >= x$13.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$13.$array[x$13.$offset + y]))) {
+			FillTile(x, y);
+		}
+		return (x$15 = (x$16 = board$1.next, ((x < 0 || x >= x$16.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$16.$array[x$16.$offset + x])), ((y < 0 || y >= x$15.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$15.$array[x$15.$offset + y]));
+	};
+	Board.prototype.stepTile = function(x, y) { return this.$val.stepTile(x, y); };
+	Board.ptr.prototype.Step = function() {
+		var _q, _tmp, _tmp$1, board$1, chunkSize, i, numCPU;
+		board$1 = this;
+		numCPU = runtime.NumCPU();
+		chunkSize = (_q = (((board$1.length + numCPU >> 0) - 1 >> 0)) / numCPU, (_q === _q && _q !== 1/0 && _q !== -1/0) ? _q >> 0 : $throwRuntimeError("integer divide by zero"));
+		i = 0;
+		while (true) {
+			if (!(i < board$1.length)) { break; }
+			$go((function(x) {
+				var j, k, x;
+				j = x;
+				while (true) {
+					if (!(j < (x + chunkSize >> 0))) { break; }
+					k = 0;
+					while (true) {
+						if (!(k < board$1.width)) { break; }
+						board$1.stepTile(j, k);
+						k = k + (1) >> 0;
+					}
+					j = j + (1) >> 0;
+				}
+			}), [i]);
+			i = i + (chunkSize) >> 0;
+		}
+		_tmp = board$1.next;
+		_tmp$1 = board$1.Tiles;
+		board$1.Tiles = _tmp;
+		board$1.next = _tmp$1;
+	};
+	Board.prototype.Step = function() { return this.$val.Step(); };
+	CreateEmptyBoard = function(length, width) {
+		var _i, _ref, board$1, i, length, width, x, x$1;
+		board$1 = new Board.ptr(length, width, $makeSlice(sliceType$1, length), $makeSlice(sliceType$1, length));
+		_ref = board$1.Tiles;
+		_i = 0;
+		while (true) {
+			if (!(_i < _ref.$length)) { break; }
+			i = _i;
+			(x = board$1.Tiles, ((i < 0 || i >= x.$length) ? ($throwRuntimeError("index out of range"), undefined) : x.$array[x.$offset + i] = $makeSlice(sliceType, width)));
+			(x$1 = board$1.next, ((i < 0 || i >= x$1.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$1.$array[x$1.$offset + i] = $makeSlice(sliceType, width)));
+			_i++;
+		}
+		return board$1;
+	};
+	$pkg.CreateEmptyBoard = CreateEmptyBoard;
+	CreateBoard = function(length, width, filler) {
+		var _q, board$1, chunkSize, filler, i, length, numCPU, width;
+		board$1 = CreateEmptyBoard(length, width);
+		numCPU = runtime.NumCPU();
+		chunkSize = (_q = (((board$1.length + numCPU >> 0) - 1 >> 0)) / numCPU, (_q === _q && _q !== 1/0 && _q !== -1/0) ? _q >> 0 : $throwRuntimeError("integer divide by zero"));
+		i = 0;
+		while (true) {
+			if (!(i < board$1.length)) { break; }
+			$go((function $b(x) {
+				var _r, j, k, x, x$1, x$2, $s, $r;
+				/* */ $s = 0; var $f, $c = false; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; _r = $f._r; j = $f.j; k = $f.k; x = $f.x; x$1 = $f.x$1; x$2 = $f.x$2; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
+				j = x;
+				/* while (true) { */ case 1:
+					/* if (!(j < (x + chunkSize >> 0))) { break; } */ if(!(j < (x + chunkSize >> 0))) { $s = 2; continue; }
+					k = 0;
+					/* while (true) { */ case 3:
+						/* if (!(k < board$1.width)) { break; } */ if(!(k < board$1.width)) { $s = 4; continue; }
+						_r = filler(i, j); /* */ $s = 5; case 5: if($c) { $c = false; _r = _r.$blk(); } if (_r && _r.$blk !== undefined) { break s; }
+						(x$1 = (x$2 = board$1.Tiles, ((j < 0 || j >= x$2.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$2.$array[x$2.$offset + j])), ((k < 0 || k >= x$1.$length) ? ($throwRuntimeError("index out of range"), undefined) : x$1.$array[x$1.$offset + k] = _r));
+						k = k + (1) >> 0;
+					/* } */ $s = 3; continue; case 4:
+					j = j + (1) >> 0;
+				/* } */ $s = 1; continue; case 2:
+				$s = -1; return;
+				/* */ } return; } if ($f === undefined) { $f = { $blk: $b }; } $f._r = _r; $f.j = j; $f.k = k; $f.x = x; $f.x$1 = x$1; $f.x$2 = x$2; $f.$s = $s; $f.$r = $r; return $f;
+			}), [i]);
+			i = i + (chunkSize) >> 0;
+		}
+		return board$1;
+	};
+	$pkg.CreateBoard = CreateBoard;
+	ptrType.methods = [{prop: "GetSize", name: "GetSize", pkg: "", typ: $funcType([], [$Int], false)}, {prop: "GetLength", name: "GetLength", pkg: "", typ: $funcType([], [$Int], false)}, {prop: "GetWidth", name: "GetWidth", pkg: "", typ: $funcType([], [$Int], false)}, {prop: "Get", name: "Get", pkg: "", typ: $funcType([$Int, $Int], [$Bool], false)}, {prop: "stepTile", name: "stepTile", pkg: "main", typ: $funcType([$Int, $Int], [$Bool], false)}, {prop: "Step", name: "Step", pkg: "", typ: $funcType([], [], false)}];
+	Board.init("main", [{prop: "length", name: "length", anonymous: false, exported: false, typ: $Int, tag: ""}, {prop: "width", name: "width", anonymous: false, exported: false, typ: $Int, tag: ""}, {prop: "Tiles", name: "Tiles", anonymous: false, exported: true, typ: sliceType$1, tag: ""}, {prop: "next", name: "next", anonymous: false, exported: false, typ: sliceType$1, tag: ""}]);
 	$init = function() {
 		$pkg.$init = function() {};
 		/* */ var $f, $c = false, $s = 0, $r; if (this !== undefined && this.$blk !== undefined) { $f = this; $c = true; $s = $f.$s; $r = $f.$r; } s: while (true) { switch ($s) { case 0:
-		$r = life.$init(); /* */ $s = 1; case 1: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
-		$r = js.$init(); /* */ $s = 2; case 2: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
-		$r = rand.$init(); /* */ $s = 3; case 3: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
+		$r = js.$init(); /* */ $s = 1; case 1: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
+		$r = rand.$init(); /* */ $s = 2; case 2: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
+		$r = runtime.$init(); /* */ $s = 3; case 3: if($c) { $c = false; $r = $r.$blk(); } if ($r && $r.$blk !== undefined) { break s; }
 		board = ptrType.nil;
 		playing = false;
 		if ($pkg === $mainPkg) {

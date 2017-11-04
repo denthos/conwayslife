@@ -12,7 +12,8 @@ var playing bool
 func main() {
 	length := js.Global.Get("lifeBoardLength")
 	width := js.Global.Get("lifeBoardWidth")
-	board = CreateBoard(length.Int(), width.Int(), func(x, y int) bool { return rand.Float64() <= 0.33 })
+	density := js.Global.Get("lifeBoardDensity")
+	board = CreateBoard(length.Int(), width.Int(), func(x, y int) bool { return rand.Float64() <= density.Float() })
 	js.Global.Set("lifeBoard", map[string]interface{}{
 		"Tiles":    board.Tiles,
 		"Step":     board.Step,
@@ -20,30 +21,32 @@ func main() {
 		"Pause":    Pause,
 		"Draw":     Draw,
 		"DrawGrid": DrawGrid,
+		"PlayLoop": PlayLoop,
 	})
-	DrawGrid()
-	Play()
 }
 
-// Play repeatedly steps the life board until "playing" is set to false
+// Play sets "playing" to true and begins the play loop
 func Play() {
 	playing = true
+	PlayLoop()
+}
+
+// PlayLoop steps the board, updating tiles as they change
+func PlayLoop() {
 	if playing {
 		board.Step()
-		Draw()
-		js.Global.Call("setTimeout", Play, 5)
+		js.Global.Call("setTimeout", PlayLoop, 5)
 	}
 }
 
 // Pause stops the life board from stepping automatically
 func Pause() {
 	playing = false
-
 }
 
 // Draw draws the board to the canvas with ID=BoardCanvas
 func Draw() {
-	//DrawGrid()
+	DrawGrid()
 	canvas := js.Global.Get("document").Call("getElementById", "BoardCanvas")
 	if canvas != nil {
 		context := canvas.Call("getContext", "2d")
@@ -52,8 +55,10 @@ func Draw() {
 				for j := 0; j < board.GetWidth(); j++ {
 					if board.Tiles[i][j] {
 						// fill tile
+						FillTile(i, j)
 					} else {
 						// clear tile
+						ClearTile(i, j)
 					}
 				}
 			}
@@ -63,21 +68,50 @@ func Draw() {
 
 // DrawGrid draws the grid on the canvas that is filled with Draw
 func DrawGrid() {
-	canvas := js.Global.Get("document").Call("getElementById", "BoardCanvas")
+	canvas := js.Global.Get("canvas")
 	if canvas != nil {
 		context := canvas.Call("getContext", "2d")
 		if context != nil {
-			padding := 0
-			for x := 0; x <= canvas.Get("width").Int(); x += canvas.Get("width").Int() / board.GetLength() {
-				context.Call("moveTo", 0.5+float64(x)+float64(padding), padding)
-				context.Call("lineTo", 0.5+float64(x)+float64(padding), canvas.Get("height").Int()+padding)
+			xoffset := canvas.Get("width").Int() / board.GetWidth()
+			yoffset := canvas.Get("height").Int() / board.GetLength()
+			for x := 0; x < board.GetWidth(); x++ {
+				context.Call("moveTo", 0.5+float64(x*xoffset), 0)
+				context.Call("lineTo", 0.5+float64(x*xoffset), board.GetLength()*yoffset)
 			}
-			for x := 0; x <= canvas.Get("height").Int(); x += canvas.Get("height").Int() / board.GetWidth() {
-				context.Call("moveTo", padding, 0.5+float64(x)+float64(padding))
-				context.Call("lineTo", canvas.Get("width").Int()+padding, 0.5+float64(x)+float64(padding))
+			for x := 0; x < board.GetLength(); x++ {
+				context.Call("moveTo", 0, 0.5+float64(x*yoffset))
+				context.Call("lineTo", board.GetWidth()*xoffset, 0.5+float64(x*yoffset))
 			}
 			context.Set("strokeStyle", "black")
 			context.Call("stroke")
+		}
+	}
+}
+
+// ClearTile clears the specified tile on the canvas
+func ClearTile(x, y int) {
+	canvas := js.Global.Get("canvas")
+	if canvas != nil {
+		context := canvas.Call("getContext", "2d")
+		if context != nil {
+			xoffset := canvas.Get("width").Int() / board.GetWidth()
+			yoffset := canvas.Get("height").Int() / board.GetLength()
+			context.Set("fillStyle", "#ffffff")
+			context.Call("fillRect", float64(x*xoffset)+0.5, float64(y*yoffset)+0.5, xoffset, yoffset)
+		}
+	}
+}
+
+// FillTile fills the specified tile on the canvas
+func FillTile(x, y int) {
+	canvas := js.Global.Get("canvas")
+	if canvas != nil {
+		context := canvas.Call("getContext", "2d")
+		if context != nil {
+			xoffset := canvas.Get("width").Int() / board.GetWidth()
+			yoffset := canvas.Get("height").Int() / board.GetLength()
+			context.Set("fillStyle", "#000000")
+			context.Call("fillRect", float64(x*xoffset)+0.5, float64(y*yoffset)+0.5, xoffset, yoffset)
 		}
 	}
 }
@@ -145,9 +179,10 @@ func (board *Board) stepTile(x, y int) bool {
 	switch {
 	case board.Tiles[x][y] && !board.next[x][y]:
 		//clear tile
-
+		ClearTile(x, y)
 	case !board.Tiles[x][y] && board.next[x][y]:
 		// fill tile
+		FillTile(x, y)
 	}
 	return board.next[x][y]
 }
