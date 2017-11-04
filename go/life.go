@@ -20,7 +20,6 @@ func main() {
 		"Play":     Play,
 		"Pause":    Pause,
 		"Draw":     Draw,
-		"DrawGrid": DrawGrid,
 		"PlayLoop": PlayLoop,
 	})
 }
@@ -46,7 +45,6 @@ func Pause() {
 
 // Draw draws the board to the canvas with ID=BoardCanvas
 func Draw() {
-	DrawGrid()
 	canvas := js.Global.Get("document").Call("getElementById", "BoardCanvas")
 	if canvas != nil {
 		context := canvas.Call("getContext", "2d")
@@ -66,38 +64,16 @@ func Draw() {
 	}
 }
 
-// DrawGrid draws the grid on the canvas that is filled with Draw
-func DrawGrid() {
-	canvas := js.Global.Get("canvas")
-	if canvas != nil {
-		context := canvas.Call("getContext", "2d")
-		if context != nil {
-			xoffset := canvas.Get("width").Int() / board.GetWidth()
-			yoffset := canvas.Get("height").Int() / board.GetLength()
-			for x := 0; x < board.GetWidth(); x++ {
-				context.Call("moveTo", 0.5+float64(x*xoffset), 0)
-				context.Call("lineTo", 0.5+float64(x*xoffset), board.GetLength()*yoffset)
-			}
-			for x := 0; x < board.GetLength(); x++ {
-				context.Call("moveTo", 0, 0.5+float64(x*yoffset))
-				context.Call("lineTo", board.GetWidth()*xoffset, 0.5+float64(x*yoffset))
-			}
-			context.Set("strokeStyle", "black")
-			context.Call("stroke")
-		}
-	}
-}
-
 // ClearTile clears the specified tile on the canvas
 func ClearTile(x, y int) {
 	canvas := js.Global.Get("canvas")
 	if canvas != nil {
 		context := canvas.Call("getContext", "2d")
 		if context != nil {
-			xoffset := canvas.Get("width").Int() / board.GetWidth()
-			yoffset := canvas.Get("height").Int() / board.GetLength()
+			xoffset := canvas.Get("width").Float() / float64(board.GetWidth())
+			yoffset := canvas.Get("height").Float() / float64(board.GetLength())
 			context.Set("fillStyle", "#ffffff")
-			context.Call("fillRect", float64(x*xoffset)+0.5, float64(y*yoffset)+0.5, xoffset, yoffset)
+			context.Call("fillRect", (float64(x)*xoffset)+0.5, (float64(y)*yoffset)+0.5, xoffset, yoffset)
 		}
 	}
 }
@@ -108,10 +84,10 @@ func FillTile(x, y int) {
 	if canvas != nil {
 		context := canvas.Call("getContext", "2d")
 		if context != nil {
-			xoffset := canvas.Get("width").Int() / board.GetWidth()
-			yoffset := canvas.Get("height").Int() / board.GetLength()
+			xoffset := canvas.Get("width").Float() / float64(board.GetWidth())
+			yoffset := canvas.Get("height").Float() / float64(board.GetLength())
 			context.Set("fillStyle", "#000000")
-			context.Call("fillRect", float64(x*xoffset)+0.5, float64(y*yoffset)+0.5, xoffset, yoffset)
+			context.Call("fillRect", (float64(x)*xoffset)+0.5, (float64(y)*yoffset)+0.5, xoffset, yoffset)
 		}
 	}
 }
